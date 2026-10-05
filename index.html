@@ -97,6 +97,13 @@
     document.getElementById('year').textContent=new Date().getFullYear();
     const filters=[...document.querySelectorAll('.filter')],pieces=[...document.querySelectorAll('.piece')];
     filters.forEach(button=>button.addEventListener('click',()=>{const choice=button.dataset.filter;filters.forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});pieces.forEach(piece=>{piece.hidden=choice!=='all'&&piece.dataset.kind!==choice})}));
+    // Give the main gallery a stable daily shuffle so older pieces regularly move forward.
+    const gallery=document.getElementById('pieces');
+    function dailySeed(){const d=new Date();return Number(String(d.getFullYear())+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'))}
+    function seededRandom(seed){let x=Math.sin(seed)*10000;return x-Math.floor(x)}
+    function shuffleDaily(){const cards=[...gallery.children];let seed=dailySeed();for(let i=cards.length-1;i>0;i--){seed+=1;const j=Math.floor(seededRandom(seed)*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]]}cards.forEach(card=>gallery.appendChild(card))}
+    shuffleDaily();
+
     const modal=document.getElementById('pieceModal'),modalImage=document.getElementById('pieceModalImage'),modalTitle=document.getElementById('pieceModalTitle'),modalDescription=document.getElementById('pieceModalDescription'),modalKind=document.getElementById('pieceModalKind'),modalEnquire=document.getElementById('pieceModalEnquire'),modalClose=document.querySelector('.piece-modal-close');
     let lastFocused=null;
     function openPiece(piece){const img=piece.querySelector('img'),title=piece.querySelector('h3')?.textContent?.trim()||'Gallery piece',description=piece.querySelector('p')?.textContent?.trim()||'',kind=piece.querySelector('b')?.textContent?.trim()||'';lastFocused=document.activeElement;modalImage.src=img.src;modalImage.alt=img.alt||title;modalTitle.textContent=title;modalDescription.textContent=description;modalKind.textContent=kind;modalEnquire.href='mailto:taspaul@bigpond.com?subject='+encodeURIComponent('Redwel Designs enquiry — '+title);modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';modalClose.focus()}
